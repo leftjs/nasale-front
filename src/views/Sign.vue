@@ -15,12 +15,15 @@
       <el-input placeholder="请再次输入密码" v-model="repassword"></el-input>
     </p>
     <div class="group">
-      <span v-show="type == 'register'">已有账号？
-        <router-link :to="{path: '/sign', params:{type:'login'}}">登陆</router-link>
+      <span v-if="type == 'register'">已有账号?
+        <router-link :to="{path: '/sign', query:{type:'login'}}">登陆</router-link>
+      </span>
+      <span v-else>没有账号?
+        <router-link :to="{path: '/sign', query:{type:'register'}}">注册</router-link>
       </span>
 
       <div>
-        <el-button plain size="mini" type="success">提交</el-button>
+        <el-button plain size="mini" type="success" @click="submit">{{this.type == "register" ? "注册" : "登陆"}}</el-button>
         <el-button plain size="mini" @click="reset">重置</el-button>
       </div>
     </div>
@@ -31,6 +34,7 @@
 
 
 <script>
+import axios from "@/utils/axios";
 export default {
   data() {
     return {
@@ -49,6 +53,68 @@ export default {
     },
     getQuery() {
       this.type = this.$route.query.type;
+    },
+    submit() {
+      let { username, password, repassword } = this;
+      if (!username || !password) {
+        this.$message.error("请输入用户名或者密码");
+        return;
+      }
+      if (username.length < 6 || password.length < 6) {
+        this.$message.error("用户名密码长度不能小于6");
+        return;
+      }
+      if (this.type == "register") {
+        // 注册
+        if (password !== repassword) {
+          this.$message.error("两次输入密码不匹配，请检查");
+          return;
+        }
+        axios
+          .post("/user/signup", {
+            username,
+            password
+          })
+          .then(res => {
+            console.log(res);
+            if (res.status === 200) {
+              // 注册成功
+
+              this.$message.success("注册成功");
+              this.$router.push({
+                path: "/sign",
+                query: {
+                  type: "login"
+                }
+              });
+            }
+          })
+          .catch(err => {
+            let response = err.response || {};
+            this.$message.error(response.errorMessage || response.data);
+          });
+      } else {
+        // 登陆
+        axios
+          .post("/user/signin", {
+            username,
+            password
+          })
+          .then(res => {
+            if (res.status === 200) {
+              // 登陆成功
+              const token = res.data;
+              // console.log(token);
+              this.$store.commit("login", token);
+              this.$message.success("登陆成功");
+            }
+          })
+          .catch(err => {
+            // console.log(err.response);
+            let response = err.response || {};
+            this.$message.error(response.errorMessage || response.data);
+          });
+      }
     }
   },
   created() {

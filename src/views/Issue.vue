@@ -22,6 +22,9 @@
             <el-form-item label="有赞api secret" prop="secret">
               <el-input v-model="token.secret"></el-input>
             </el-form-item>
+            <el-form-item>
+              el-upload
+            </el-form-item>
             <el-form-item style="text-align: left;">
               <el-button type="success" @click="onSubmit">发布</el-button>
               <el-button type="danger">取消</el-button>
@@ -35,7 +38,7 @@
           <p>3.申请代币的总量全部汇入用户的地址中</p>
           <p>4.用户所有代币由平台代售</p>
           <p>5.申请
-            <a href="https://console.youzanyun.com/login">有赞云</a>并创建自用型应用获得api key和secret</p>
+            <a href="https://console.youzanyun.com/login" target="__blank">有赞云</a>并创建自用型应用获得api key和secret</p>
         </div>
       </div>
 
